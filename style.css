@@ -13,20 +13,20 @@
   --bg-section: #0d0d18;
   --gold: #c9a84c;
   --gold-light: #e8d48b;
-  --gold-dim: #8a7230;
+  --gold-dim: #a08a40;
   --blue: #4a6fa5;
   --blue-light: #7b9fd4;
   --blue-glow: #2a4a7f;
   --purple: #6b4c8a;
   --purple-light: #9b7dbe;
-  --text: #d4d0e0;
-  --text-dim: #8a8698;
+  --text: #e0dced;
+  --text-dim: #a9a4b8;
   --text-bright: #f0eef5;
   --border: #2a2a3e;
   --border-light: #3a3a52;
-  --font-display: 'Cinzel', serif;
-  --font-body: 'Cormorant Garamond', serif;
-  --font-ui: 'Inter', sans-serif;
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Lora', serif;
+  --font-ui: 'DM Sans', sans-serif;
 }
 
 html {
@@ -215,7 +215,7 @@ a:hover {
 
 .hero-desc {
   font-size: 1.15rem;
-  color: var(--text-dim);
+  color: var(--text);
   max-width: 560px;
   margin: 0 auto 2rem;
   animation: fadeUp 1s ease-out 0.8s both;
@@ -501,7 +501,7 @@ a:hover {
 
 .card-desc {
   font-size: 1rem;
-  color: var(--text-dim);
+  color: var(--text);
   line-height: 1.65;
   margin-bottom: 1.25rem;
 }
@@ -581,7 +581,7 @@ a:hover {
 
 .how-card p {
   font-size: 0.95rem;
-  color: var(--text-dim);
+  color: var(--text);
   line-height: 1.6;
 }
 
