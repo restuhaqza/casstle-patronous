@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a12"/>
+      <stop offset="60%" stop-color="#12121f"/>
+      <stop offset="100%" stop-color="#0f0f1e"/>
+    </linearGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="45%" r="45%">
+      <stop offset="0%" stop-color="#6b4c8a" stop-opacity="0.18"/>
+      <stop offset="40%" stop-color="#4a6fa5" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  <rect width="1200" height="630" fill="url(#centerGlow)"/>
+
+  <!-- Decorative particles -->
+  <circle cx="150" cy="120" r="1.5" fill="#c9a84c" opacity="0.3"/>
+  <circle cx="350" cy="80" r="1" fill="#e8d48b" opacity="0.2"/>
+  <circle cx="850" cy="95" r="1.5" fill="#c9a84c" opacity="0.25"/>
+  <circle cx="1050" cy="150" r="1" fill="#e8d48b" opacity="0.2"/>
+  <circle cx="200" cy="500" r="1" fill="#c9a84c" opacity="0.15"/>
+  <circle cx="980" cy="520" r="1.5" fill="#e8d48b" opacity="0.2"/>
+  <circle cx="600" cy="580" r="1" fill="#c9a84c" opacity="0.15"/>
+  <circle cx="100" cy="350" r="1" fill="#a9a4b8" opacity="0.2"/>
+  <circle cx="1100" cy="400" r="1" fill="#a9a4b8" opacity="0.2"/>
+
+  <!-- Top gold line -->
+  <rect x="0" y="0" width="1200" height="2" fill="#c9a84c" opacity="0.35"/>
+
+  <!-- Star emblem with glow -->
+  <circle cx="600" cy="145" r="60" fill="url(#starGlow)"/>
+  <text x="600" y="168" text-anchor="middle" font-family="Georgia, serif" font-size="52" fill="#c9a84c" opacity="0.9">★</text>
+
+  <!-- Eyebrow -->
+  <text x="600" y="240" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#c9a84c" letter-spacing="8" opacity="0.7">PATRONOUS PROJECT</text>
+
+  <!-- Main title -->
+  <text x="600" y="330" text-anchor="middle" font-family="Georgia, serif" font-size="68" font-weight="bold" fill="#f0eef5">The Patronous</text>
+  <text x="600" y="405" text-anchor="middle" font-family="Georgia, serif" font-size="68" font-weight="bold" fill="#f0eef5">Project</text>
+
+  <!-- Gold divider -->
+  <rect x="540" y="430" width="120" height="1.5" fill="#c9a84c" opacity="0.5" rx="1"/>
+
+  <!-- Tagline -->
+  <text x="600" y="480" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-style="italic" fill="#e8d48b" opacity="0.85">Not one spell. A whole staff of wizards.</text>
+
+  <!-- Bottom info -->
+  <text x="600" y="560" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#a9a4b8" letter-spacing="4" opacity="0.6">BUILT ON OPENCLAW</text>
+
+  <!-- Bottom gold line -->
+  <rect x="0" y="628" width="1200" height="2" fill="#c9a84c" opacity="0.35"/>
+</svg>
