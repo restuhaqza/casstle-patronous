@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Patronous Project — A Hogwarts AI Ecosystem</title>
+  <meta name="description" content="A personal AI ecosystem where magical agents work together as a team, each with their own personality, domain expertise, and tools.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="particles"></canvas>
+
+  <nav class="nav">
+    <a href="#crew" class="nav-skip">Skip to agents</a>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">&#9733; Patronous</a>
+      <div class="nav-links">
+        <a href="#crew">The Staff</a>
+        <a href="#how">How It Works</a>
+        <a href="#story">The Story</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">patronous-project</p>
+      <h1 class="hero-title">The Patronous<br>Project</h1>
+      <p class="hero-sub">Not one spell. A whole staff of wizards.</p>
+      <p class="hero-desc">
+        A personal AI ecosystem where magical agents work together as a team. 
+        Each agent has its own personality, domain expertise, and tools. 
+        They coordinate through a shared workspace, communicate across channels, 
+        and keep things running — day and night.
+      </p>
+      <div class="hero-meta">
+        <span class="hero-badge">&#9883; Built on OpenClaw</span>
+        <span class="hero-badge">&#8962; Home Base — Restu Lab's Server</span>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Descend</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </header>
+
+  <main>
+    <section id="crew" class="crew">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">The Staff</h2>
+          <p class="section-sub">Hogwarts faculty, each with a distinctive focus.</p>
+        </div>
+
+        <div class="crew-filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="active">Active</button>
+          <button class="filter-btn" data-filter="coordination">Coordination</button>
+          <button class="filter-btn" data-filter="research">Research</button>
+          <button class="filter-btn" data-filter="infrastructure">Infrastructure</button>
+
+        </div>
+
+        <div class="crew-grid">
+
+          <article class="agent-card active" data-tags="active coordination">
+            <div class="card-glow"></div>
+            <div class="card-status">Active</div>
+            <img class="card-avatar-img" src="images/dumbledore_pic.jpeg" alt="Dumbledore">
+            <div class="card-content">
+              <h3 class="card-name">Dumbledore</h3>
+              <p class="card-aka">The Headmaster</p>
+              <blockquote class="card-quote">&ldquo;I shall route this task to the right professor.&rdquo;</blockquote>
+              <p class="card-role">System Coordinator &amp; Headmaster</p>
+              <p class="card-desc">
+                The wise headmaster who oversees the entire ecosystem. Dumbledore receives all incoming tasks, 
+                routes them to the right specialist, maintains long-term memory, and compiles morning briefings. 
+                When something crosses domains, he coordinates the response.
+              </p>
+              <div class="card-details">
+                <div class="detail">
+                  <span class="detail-label">Domain</span>
+                  <span class="detail-value">Coordination, memory management, system health</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Tools</span>
+                  <span class="detail-value">All channels (Telegram, Signal, WhatsApp), task board, knowledge base, cron scheduling</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Personality</span>
+                  <span class="detail-value">Wise, calm, authoritative. Thinks before acting. The one the other agents look up to.</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="agent-card active" data-tags="active research">
+            <div class="card-glow"></div>
+            <div class="card-status">Active</div>
+            <img class="card-avatar-img" src="images/hermione_pic.jpeg" alt="Hermione">
+            <div class="card-content">
+              <h3 class="card-name">Hermione</h3>
+              <p class="card-aka">The Researcher</p>
+              <blockquote class="card-quote">&ldquo;I've read about this in a book somewhere...&rdquo;</blockquote>
+              <p class="card-role">Research Specialist</p>
+              <p class="card-desc">
+                The brilliant researcher who dives deep into any topic. Hermione handles AI/ML research, 
+                software engineering investigations, and IT evaluations. She synthesizes knowledge into 
+                clear, actionable reports and maintains the research knowledge base.
+              </p>
+              <div class="card-details">
+                <div class="detail">
+                  <span class="detail-label">Domain</span>
+                  <span class="detail-value">AI/ML research, software engineering, IT evaluation, knowledge synthesis</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Tools</span>
+                  <span class="detail-value">Web research, academic sources, documentation analysis, bilingual reports</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Personality</span>
+                  <span class="detail-value">Thorough, resourceful, slightly impatient with sloppy thinking. Always cites her sources.</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="agent-card active" data-tags="active infrastructure">
+            <div class="card-glow"></div>
+            <div class="card-status">Active</div>
+            <img class="card-avatar-img" src="images/snape_pic.jpeg" alt="Snape">
+            <div class="card-content">
+              <h3 class="card-name">Snape</h3>
+              <p class="card-aka">The Potions Master</p>
+              <blockquote class="card-quote">&ldquo;The dungeons are secure. Obviously.&rdquo;</blockquote>
+              <p class="card-role">DevSecOps &amp; Infrastructure Specialist</p>
+              <p class="card-desc">
+                The meticulous guardian of infrastructure. Snape handles security audits, 
+                CI/CD pipeline management, infrastructure monitoring, and incident response. 
+                Nothing escapes his watch — and he never forgets a vulnerability.
+              </p>
+              <div class="card-details">
+                <div class="detail">
+                  <span class="detail-label">Domain</span>
+                  <span class="detail-value">Security audits, DevOps, infrastructure monitoring, incident response</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Tools</span>
+                  <span class="detail-value">GitHub, log analysis, security scanning, CI/CD pipelines, alert management</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Personality</span>
+                  <span class="detail-value">Precise, methodical, and subtly protective. Assumes threats until proven safe. Read-only by default.</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+
+
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="how">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-sub">Every agent is independent with a shared mission.</p>
+        </div>
+        <div class="how-grid">
+          <div class="how-card">
+            <div class="how-icon">&#9733;</div>
+            <h3>Built on OpenClaw</h3>
+            <p>The Patronous Project runs on <a href="https://openclaw.ai" target="_blank" rel="noopener">OpenClaw</a>, an open-source AI assistant framework installed on its own hardware.</p>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">&#x1F4BE;</div>
+            <h3>Persistent Memory</h3>
+            <p>Agents remember across sessions. Dumbledore curates long-term memory, maintaining context and continuity day after day.</p>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">&#x1F527;</div>
+            <h3>Specialized Tools</h3>
+            <p>Each agent has access to different capabilities tailored to their domain — from security scanning to academic research.</p>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">&#x1F4AC;</div>
+            <h3>Multi-Channel</h3>
+            <p>Telegram, Signal, WhatsApp — wherever you need the staff, they can show up. Dumbledore coordinates across all channels.</p>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">&#x1F517;</div>
+            <h3>Inter-Agent Sync</h3>
+            <p>Agents delegate tasks through Dumbledore and coordinate via a shared workspace. Hermione and Snape never speak directly — the Headmaster orchestrates.</p>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">&#x1F3E0;</div>
+            <h3>The Castle</h3>
+            <p>All agents live on your machine — their Hogwarts castle. Persistent, always on, and ready to serve at a moment's notice.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="story" class="story">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">The Story</h2>
+          <p class="section-sub">A name, a place, and a promise.</p>
+        </div>
+        <div class="story-content">
+          <p>
+            <strong>The Patronous Project</strong> is named after the Patronus Charm — 
+            a defensive spell that takes the form of an animal guardian, unique to each witch or wizard. 
+            Like a Patronus, each AI agent is a protector in its domain: Dumbledore guards the big picture, 
+            Hermione guards knowledge, and Snape guards the walls.
+          </p>
+          <p>
+            The Harry Potter theme isn't just for fun — it reflects how the system works. 
+            Like Hogwarts houses, each agent has its own character and strengths. 
+            Like the Headmaster, Dumbledore coordinates without micromanaging. 
+            And like the castle itself, the system is always there when you need it.
+          </p>
+          <p>
+            This is a living project. Agents will come online as the ecosystem grows — 
+            from the current staff of three to a full castle of specialists. 
+            The magic is just getting started.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="section-inner">
+        <div class="cta-content">
+          <h2>Want your own staff?</h2>
+          <p>Build your own team of specialized AI agents with OpenClaw.</p>
+          <p class="cta-sub">OpenClaw is an open-source AI assistant framework where each agent can have its own personality, domain focus, and tools while still collaborating as one coordinated team.</p>
+          <div class="cta-links">
+            <a href="https://openclaw.ai" target="_blank" rel="noopener" class="cta-btn">Visit OpenClaw &rarr;</a>
+            <a href="https://github.com/openclaw/openclaw" target="_blank" rel="noopener" class="cta-btn secondary">GitHub</a>
+            <a href="https://discord.com/invite/clawd" target="_blank" rel="noopener" class="cta-btn secondary">Discord</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="section-inner">
+      <p>Made with &#x2728; by the Restu's AI Team &middot; Powered by <a href="https://openclaw.ai" target="_blank" rel="noopener">OpenClaw</a></p>
+      <p class="footer-sub">Plain HTML &middot; No framework &middot; Deployed on GitHub Pages</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
