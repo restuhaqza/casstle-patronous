@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patronous — Knowledge Zone Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0a0f1c;
+    --surface: #0f172a;
+    --surface2: #1e293b;
+    --surface-elevated: #162032;
+    --border: rgba(148, 163, 184, 0.08);
+    --border-bright: rgba(148, 163, 184, 0.18);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #d4a73a;
+    --accent-dim: rgba(212, 167, 58, 0.12);
+    --green: #34d399;
+    --green-dim: rgba(52, 211, 153, 0.12);
+    --orange: #fb923c;
+    --orange-dim: rgba(251, 146, 60, 0.12);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96, 165, 250, 0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167, 139, 250, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.12);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f8f6f1;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --surface-elevated: #faf8f5;
+      --border: rgba(15, 23, 42, 0.08);
+      --border-bright: rgba(15, 23, 42, 0.15);
+      --text: #0f172a;
+      --text-dim: #64748b;
+      --accent: #1e3a5f;
+      --accent-dim: rgba(30, 58, 95, 0.08);
+      --green: #059669;
+      --green-dim: rgba(5, 150, 105, 0.08);
+      --orange: #d97706;
+      --orange-dim: rgba(217, 119, 6, 0.08);
+      --blue: #2563eb;
+      --blue-dim: rgba(37, 99, 235, 0.08);
+      --purple: #7c3aed;
+      --purple-dim: rgba(124, 58, 237, 0.08);
+      --red: #dc2626;
+      --red-dim: rgba(220, 38, 38, 0.08);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--accent-dim) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, var(--green-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px 24px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .section, .zone-card, .file-tree, .matrix-row {
+    animation: fadeUp 0.45s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 40px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+  }
+
+  .section-label .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+  }
+
+  /* Zone Cards */
+  .zone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .zone-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .zone-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  }
+
+  .zone-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+
+  .zone-card--green::before { background: var(--green); }
+  .zone-card--blue::before { background: var(--blue); }
+  .zone-card--purple::before { background: var(--purple); }
+  .zone-card--orange::before { background: var(--orange); }
+  .zone-card--red::before { background: var(--red); }
+
+  .zone-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .zone-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .zone-agents {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .zone-agent-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .zone-agent-badge--green { background: var(--green-dim); color: var(--green); }
+  .zone-agent-badge--blue { background: var(--blue-dim); color: var(--blue); }
+  .zone-agent-badge--purple { background: var(--purple-dim); color: var(--purple); }
+
+  /* File Tree */
+  .file-tree {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .file-tree .folder { color: var(--accent); font-weight: 600; }
+  .file-tree .file { color: var(--text-dim); }
+  .file-tree .comment { color: var(--text-dim); font-style: italic; font-size: 11px; }
+
+  /* Access Matrix */
+  .matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .matrix-header {
+    display: grid;
+    grid-template-columns: 140px repeat(5, 1fr);
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .matrix-row {
+    display: grid;
+    grid-template-columns: 140px repeat(5, 1fr);
+    gap: 2px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .matrix-row:last-child {
+    border-bottom: none;
+  }
+
+  .matrix-agent {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .matrix-cell {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .matrix-cell--rw {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  .matrix-cell--ro {
+    background: var(--blue-dim);
+    color: var(--blue);
+  }
+
+  .matrix-cell--no {
+    background: var(--red-dim);
+    color: var(--red);
+  }
+
+  .matrix-cell--curator {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  /* Isolation callout */
+  .isolation-callout {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .isolation-callout strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 20px 16px; }
+    .matrix-header, .matrix-row {
+      grid-template-columns: 100px repeat(5, 1fr);
+      font-size: 9px;
+    }
+    .matrix-agent { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Knowledge Zones</h1>
+<p class="subtitle">File-based knowledge storage with domain-based access control</p>
+
+<div class="page">
+
+  <!-- Zone Overview -->
+  <div class="section" style="--i:0">
+    <div class="section-label"><span class="dot"></span> Knowledge Zones</div>
+    <div class="zone-grid">
+      <div class="zone-card zone-card--green" style="--i:0">
+        <div class="zone-name">shared/</div>
+        <div class="zone-desc">Common knowledge accessible to all agents. Procedures, tools, communication conventions.</div>
+        <div class="zone-agents">
+          <span class="zone-agent-badge zone-agent-badge--green">Dumbledore</span>
+          <span class="zone-agent-badge zone-agent-badge--blue">Hermione</span>
+          <span class="zone-agent-badge zone-agent-badge--purple">Snape</span>
+        </div>
+      </div>
+      <div class="zone-card zone-card--blue" style="--i:1">
+        <div class="zone-name">work/</div>
+        <div class="zone-desc">Work-related knowledge. Code projects, architecture docs, security documentation.</div>
+        <div class="zone-agents">
+          <span class="zone-agent-badge zone-agent-badge--green">Dumbledore</span>
+          <span class="zone-agent-badge zone-agent-badge--blue">Hermione</span>
+          <span class="zone-agent-badge zone-agent-badge--purple">Snape</span>
+        </div>
+      </div>
+      <div class="zone-card zone-card--purple" style="--i:2">
+        <div class="zone-name">research/</div>
+        <div class="zone-desc">AI, software, and IT research. Maintained primarily by Hermione.</div>
+        <div class="zone-agents">
+          <span class="zone-agent-badge zone-agent-badge--green">Dumbledore</span>
+          <span class="zone-agent-badge zone-agent-badge--blue">Hermione</span>
+        </div>
+      </div>
+      <div class="zone-card zone-card--orange" style="--i:3">
+        <div class="zone-name">personal/</div>
+        <div class="zone-desc">Personal data. Finance, career, preferences. Dumbledore-only access.</div>
+        <div class="zone-agents">
+          <span class="zone-agent-badge zone-agent-badge--green">Dumbledore</span>
+        </div>
+      </div>
+      <div class="zone-card zone-card--red" style="--i:4">
+        <div class="zone-name">isolated/</div>
+        <div class="zone-desc">Mental health and sensitive data. Completely air-gapped from other agents.</div>
+        <div class="zone-agents">
+          <span class="zone-agent-badge" style="background:var(--red-dim);color:var(--red)">Mental Health Only</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Structure -->
+  <div class="section" style="--i:1">
+    <div class="section-label"><span class="dot"></span> Directory Structure</div>
+    <div class="file-tree" style="--i:1">
+<span class="folder">knowledge/</span>
+├── <span class="folder">shared/</span>                     <span class="comment">All agents</span>
+│   ├── agents.md              <span class="comment">Agent roster and roles</span>
+│   ├── procedures.md          <span class="comment">Standard operating procedures</span>
+│   ├── communication.md       <span class="comment">Messaging conventions</span>
+│   └── tools.md               <span class="comment">Tool usage guidelines</span>
+│
+├── <span class="folder">work/</span>                       <span class="comment">Dumbledore + Hermione + Snape</span>
+│   ├── security.md            <span class="comment">Security docs (Snape maintains)</span>
+│   ├── projects.md            <span class="comment">Active project list</span>
+│   └── architecture.md        <span class="comment">System design docs</span>
+│
+├── <span class="folder">research/</span>                   <span class="comment">Hermione primary</span>
+│   ├── <span class="folder">ai/</span>                    <span class="comment">AI/ML research</span>
+│   ├── <span class="folder">software/</span>              <span class="comment">Software engineering</span>
+│   └── <span class="folder">it/</span>                    <span class="comment">IT infrastructure</span>
+│
+├── <span class="folder">personal/</span>                   <span class="comment">Dumbledore only</span>
+│   ├── preferences.md         <span class="comment">Owner preferences</span>
+│   └── finances.md            <span class="comment">Budget and investments</span>
+│
+└── <span class="folder">isolated/</span>                   <span class="comment">Mental health agents only</span>
+    └── <span class="folder">lupin/</span>               <span class="comment">Air-gapped workspace</span>
+
+<span class="folder">memory/</span>
+├── MEMORY.md                  <span class="comment">Curated long-term memory (Dumbledore)</span>
+└── 2025-04-28.md              <span class="comment">Today's activity log</span></div>
+  </div>
+
+  <!-- Access Matrix -->
+  <div class="section" style="--i:2">
+    <div class="section-label"><span class="dot"></span> Agent Access Matrix (MVP)</div>
+    <div class="matrix">
+      <div class="matrix-header">
+        <div>Agent</div>
+        <div>shared</div>
+        <div>work</div>
+        <div>research</div>
+        <div>personal</div>
+        <div>memory</div>
+      </div>
+      <div class="matrix-row" style="--i:0">
+        <div class="matrix-agent">Dumbledore</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--curator">curator</div>
+      </div>
+      <div class="matrix-row" style="--i:1">
+        <div class="matrix-agent">Hermione</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--no">&mdash;</div>
+        <div class="matrix-cell matrix-cell--ro">ro</div>
+      </div>
+      <div class="matrix-row" style="--i:2">
+        <div class="matrix-agent">Snape</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--rw">rw</div>
+        <div class="matrix-cell matrix-cell--ro">ro</div>
+        <div class="matrix-cell matrix-cell--no">&mdash;</div>
+        <div class="matrix-cell matrix-cell--ro">ro</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Isolation Warning -->
+  <div class="isolation-callout" style="--i:3">
+    <strong>Privacy by Architecture:</strong> The <code>isolated/</code> zone is structurally separated from all other agents.
+    Mental health agents have zero cross-agent visibility. This is enforced at the directory level, not just by policy.
+    Even Dumbledore cannot access isolated zones.
+  </div>
+
+</div>
+
+</body>
+</html>

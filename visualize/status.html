@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patronous — Live System Status</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0a0f1c;
+    --surface: #0f172a;
+    --surface2: #1e293b;
+    --surface-elevated: #162032;
+    --border: rgba(148, 163, 184, 0.08);
+    --border-bright: rgba(148, 163, 184, 0.18);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #d4a73a;
+    --accent-dim: rgba(212, 167, 58, 0.12);
+    --green: #34d399;
+    --green-dim: rgba(52, 211, 153, 0.12);
+    --orange: #fb923c;
+    --orange-dim: rgba(251, 146, 60, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.12);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96, 165, 250, 0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167, 139, 250, 0.12);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f8f6f1;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --surface-elevated: #faf8f5;
+      --border: rgba(15, 23, 42, 0.08);
+      --border-bright: rgba(15, 23, 42, 0.15);
+      --text: #0f172a;
+      --text-dim: #64748b;
+      --accent: #1e3a5f;
+      --accent-dim: rgba(30, 58, 95, 0.08);
+      --green: #059669;
+      --green-dim: rgba(5, 150, 105, 0.08);
+      --orange: #d97706;
+      --orange-dim: rgba(217, 119, 6, 0.08);
+      --red: #dc2626;
+      --red-dim: rgba(220, 38, 38, 0.08);
+      --blue: #2563eb;
+      --blue-dim: rgba(37, 99, 235, 0.08);
+      --purple: #7c3aed;
+      --purple-dim: rgba(124, 58, 237, 0.08);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--accent-dim) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, var(--purple-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px 24px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .section, .kpi-card, .activity-item, .agent-status-card {
+    animation: fadeUp 0.45s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 40px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+  }
+
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* KPI Row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .kpi-card {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  }
+
+  .kpi-card__value {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+
+  .kpi-card__value--green { color: var(--green); }
+  .kpi-card__value--blue { color: var(--blue); }
+  .kpi-card__value--purple { color: var(--purple); }
+  .kpi-card__value--orange { color: var(--orange); }
+
+  .kpi-card__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+
+  .kpi-card__trend {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    margin-top: 6px;
+    color: var(--green);
+  }
+
+  /* Agent Status Grid */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+  }
+
+  .agent-status-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .agent-status-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  .agent-status-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--green);
+  }
+
+  .agent-status-card--idle::before { background: var(--orange); }
+  .agent-status-card--offline::before { background: var(--red); }
+
+  .agent-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .agent-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+
+  .agent-info h3 {
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+
+  .agent-info .role {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  .status-badge--idle {
+    background: var(--orange-dim);
+    color: var(--orange);
+  }
+
+  .status-badge--offline {
+    background: var(--red-dim);
+    color: var(--red);
+  }
+
+  .status-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .status-badge--offline .dot {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .agent-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .metric__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .metric__value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Activity Feed */
+  .activity-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+  }
+
+  .section-label .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    animation: slideIn 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.08s);
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .activity-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .activity-text {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .activity-text strong {
+    font-weight: 600;
+  }
+
+  .activity-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    gap: 12px;
+  }
+
+  .activity-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  .activity-tag--green {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  .activity-tag--blue {
+    background: var(--blue-dim);
+    color: var(--blue);
+  }
+
+  .activity-tag--purple {
+    background: var(--purple-dim);
+    color: var(--purple);
+  }
+
+  /* Fuel Gauges */
+  .gauge-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+  }
+
+  .gauge-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .gauge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .gauge-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .gauge-value {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .gauge-bar {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .gauge-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-out;
+  }
+
+  .gauge-fill--green { background: var(--green); }
+  .gauge-fill--orange { background: var(--orange); }
+  .gauge-fill--red { background: var(--red); }
+
+  .gauge-footer {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+
+  /* Two column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 20px 16px; }
+    .two-col { grid-template-columns: 1fr; }
+    .agent-metrics { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>System Status</h1>
+<p class="subtitle">Real-time overview of the Patronous ecosystem</p>
+
+<div class="dashboard">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--i:0">
+      <div class="kpi-card__value kpi-card__value--green">3/3</div>
+      <div class="kpi-card__label">Agents Online</div>
+      <div class="kpi-card__trend">All operational</div>
+    </div>
+    <div class="kpi-card" style="--i:1">
+      <div class="kpi-card__value kpi-card__value--blue">12</div>
+      <div class="kpi-card__label">Tasks Today</div>
+      <div class="kpi-card__trend">+3 from yesterday</div>
+    </div>
+    <div class="kpi-card" style="--i:2">
+      <div class="kpi-card__value kpi-card__value--purple">0</div>
+      <div class="kpi-card__label">Alerts</div>
+      <div class="kpi-card__trend">No critical issues</div>
+    </div>
+    <div class="kpi-card" style="--i:3">
+      <div class="kpi-card__value kpi-card__value--orange">GLM-5</div>
+      <div class="kpi-card__label">Active Model</div>
+      <div class="kpi-card__trend">All agents</div>
+    </div>
+  </div>
+
+  <!-- Agent Status Cards -->
+  <div class="agent-grid" style="--i:4">
+    <div class="agent-status-card" style="--i:4">
+      <div class="agent-header">
+        <div class="agent-avatar">&#129497;</div>
+        <div class="agent-info">
+          <h3>Dumbledore</h3>
+          <div class="role">Coordinator</div>
+        </div>
+        <span class="status-badge"><span class="dot"></span> Online</span>
+      </div>
+      <p style="font-size:14px; color:var(--text-dim); line-height:1.5;">
+        Currently routing tasks and monitoring system health. Last briefing sent at 07:00.
+      </p>
+      <div class="agent-metrics">
+        <div class="metric">
+          <span class="metric__label">Tasks Routed</span>
+          <span class="metric__value">8</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Uptime</span>
+          <span class="metric__value">24h 12m</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Messages</span>
+          <span class="metric__value">47</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Last Active</span>
+          <span class="metric__value">2m ago</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-status-card agent-status-card--idle" style="--i:5">
+      <div class="agent-header">
+        <div class="agent-avatar">&#128218;</div>
+        <div class="agent-info">
+          <h3>Hermione</h3>
+          <div class="role">Research Specialist</div>
+        </div>
+        <span class="status-badge status-badge--idle"><span class="dot"></span> Idle</span>
+      </div>
+      <p style="font-size:14px; color:var(--text-dim); line-height:1.5;">
+        Completed research on AI agent frameworks. Awaiting next assignment from Dumbledore.
+      </p>
+      <div class="agent-metrics">
+        <div class="metric">
+          <span class="metric__label">Research Tasks</span>
+          <span class="metric__value">3</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Uptime</span>
+          <span class="metric__value">18h 45m</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Sources</span>
+          <span class="metric__value">12</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Last Active</span>
+          <span class="metric__value">45m ago</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-status-card" style="--i:6">
+      <div class="agent-header">
+        <div class="agent-avatar">&#129516;</div>
+        <div class="agent-info">
+          <h3>Snape</h3>
+          <div class="role">DevSecOps</div>
+        </div>
+        <span class="status-badge"><span class="dot"></span> Online</span>
+      </div>
+      <p style="font-size:14px; color:var(--text-dim); line-height:1.5;">
+        Running scheduled security audit. Dependency scan in progress. No critical vulnerabilities found.
+      </p>
+      <div class="agent-metrics">
+        <div class="metric">
+          <span class="metric__label">Scans Run</span>
+          <span class="metric__value">5</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Uptime</span>
+          <span class="metric__value">24h 00m</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Issues</span>
+          <span class="metric__value" style="color:var(--green)">0</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Last Active</span>
+          <span class="metric__value">Now</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fuel Gauges + Activity Feed -->
+  <div class="two-col" style="--i:7">
+    <div class="gauge-section" style="--i:7">
+      <div class="section-label"><span class="dot"></span> Resource Usage</div>
+      <div class="gauge-card">
+        <div class="gauge-header">
+          <span class="gauge-title">GLM-5 Quota</span>
+          <span class="gauge-value" style="color:var(--green)">78%</span>
+        </div>
+        <div class="gauge-bar">
+          <div class="gauge-fill gauge-fill--green" style="width:78%"></div>
+        </div>
+        <div class="gauge-footer">2,340 / 3,000 tokens used today</div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-header">
+          <span class="gauge-title">Knowledge Storage</span>
+          <span class="gauge-value" style="color:var(--blue)">42%</span>
+        </div>
+        <div class="gauge-bar">
+          <div class="gauge-fill gauge-fill--green" style="width:42%"></div>
+        </div>
+        <div class="gauge-footer">420 KB / 1 MB allocated</div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-header">
+          <span class="gauge-title">Memory Logs</span>
+          <span class="gauge-value" style="color:var(--orange)">65%</span>
+        </div>
+        <div class="gauge-bar">
+          <div class="gauge-fill gauge-fill--orange" style="width:65%"></div>
+        </div>
+        <div class="gauge-footer">13 / 20 daily logs retained</div>
+      </div>
+    </div>
+
+    <div class="activity-section" style="--i:8">
+      <div class="section-label"><span class="dot"></span> Recent Activity</div>
+      <div class="activity-list">
+        <div class="activity-item" style="--i:0">
+          <div class="activity-avatar">&#129516;</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Snape</strong> started a security audit on all dependencies</div>
+            <div class="activity-meta">
+              <span>2 min ago</span>
+              <span class="activity-tag">Security</span>
+            </div>
+          </div>
+        </div>
+        <div class="activity-item" style="--i:1">
+          <div class="activity-avatar">&#129497;</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Dumbledore</strong> routed a research task to Hermione</div>
+            <div class="activity-meta">
+              <span>15 min ago</span>
+              <span class="activity-tag activity-tag--blue">Coordination</span>
+            </div>
+          </div>
+        </div>
+        <div class="activity-item" style="--i:2">
+          <div class="activity-avatar">&#128218;</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Hermione</strong> completed research on AI agent frameworks</div>
+            <div class="activity-meta">
+              <span>45 min ago</span>
+              <span class="activity-tag activity-tag--green">Research</span>
+            </div>
+          </div>
+        </div>
+        <div class="activity-item" style="--i:3">
+          <div class="activity-avatar">&#129497;</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Dumbledore</strong> sent morning briefing to Human</div>
+            <div class="activity-meta">
+              <span>2 hours ago</span>
+              <span class="activity-tag activity-tag--purple">Briefing</span>
+            </div>
+          </div>
+        </div>
+        <div class="activity-item" style="--i:4">
+          <div class="activity-avatar">&#129516;</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Snape</strong> patched 2 low-severity dependencies</div>
+            <div class="activity-meta">
+              <span>4 hours ago</span>
+              <span class="activity-tag">Security</span>
+            </div>
+          </div>
+        </div>
+        <div class="activity-item" style="--i:5">
+          <div class="activity-avatar">&#128218;</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Hermione</strong> updated knowledge/research/ai/</div>
+            <div class="activity-meta">
+              <span>6 hours ago</span>
+              <span class="activity-tag activity-tag--green">Knowledge</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

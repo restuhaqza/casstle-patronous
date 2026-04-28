@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patronous — Task Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0a0f1c;
+    --surface: #0f172a;
+    --surface2: #1e293b;
+    --surface-elevated: #162032;
+    --border: rgba(148, 163, 184, 0.08);
+    --border-bright: rgba(148, 163, 184, 0.18);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #d4a73a;
+    --accent-dim: rgba(212, 167, 58, 0.12);
+    --green: #34d399;
+    --green-dim: rgba(52, 211, 153, 0.12);
+    --orange: #fb923c;
+    --orange-dim: rgba(251, 146, 60, 0.12);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96, 165, 250, 0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167, 139, 250, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.12);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f8f6f1;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --surface-elevated: #faf8f5;
+      --border: rgba(15, 23, 42, 0.08);
+      --border-bright: rgba(15, 23, 42, 0.15);
+      --text: #0f172a;
+      --text-dim: #64748b;
+      --accent: #1e3a5f;
+      --accent-dim: rgba(30, 58, 95, 0.08);
+      --green: #059669;
+      --green-dim: rgba(5, 150, 105, 0.08);
+      --orange: #d97706;
+      --orange-dim: rgba(217, 119, 6, 0.08);
+      --blue: #2563eb;
+      --blue-dim: rgba(37, 99, 235, 0.08);
+      --purple: #7c3aed;
+      --purple-dim: rgba(124, 58, 237, 0.08);
+      --red: #dc2626;
+      --red-dim: rgba(220, 38, 38, 0.08);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--accent-dim) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, var(--blue-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px 24px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes drawLine {
+    from { stroke-dashoffset: 200; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212, 167, 58, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(212, 167, 58, 0); }
+  }
+
+  .section, .journey-step, .scenario-card {
+    animation: fadeUp 0.45s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 40px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Journey Timeline */
+  .journey {
+    position: relative;
+    padding-left: 32px;
+  }
+
+  .journey::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: var(--border-bright);
+  }
+
+  .journey-step {
+    position: relative;
+    margin-bottom: 32px;
+  }
+
+  .journey-step:last-child {
+    margin-bottom: 0;
+  }
+
+  .journey-step::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 3px solid var(--accent);
+    z-index: 2;
+  }
+
+  .journey-step--start::before {
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .journey-step--end::before {
+    border-color: var(--green);
+    background: var(--green);
+  }
+
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .step-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .step-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .step-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .step-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .step-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .step-tag--green { background: var(--green-dim); color: var(--green); }
+  .step-tag--blue { background: var(--blue-dim); color: var(--blue); }
+  .step-tag--purple { background: var(--purple-dim); color: var(--purple); }
+  .step-tag--orange { background: var(--orange-dim); color: var(--orange); }
+
+  /* Scenario Selector */
+  .scenarios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .scenario-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .scenario-card:hover, .scenario-card.active {
+    border-color: var(--accent);
+    background: var(--surface-elevated);
+  }
+
+  .scenario-card.active {
+    box-shadow: 0 0 0 2px var(--accent-dim);
+  }
+
+  .scenario-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .scenario-card p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+  }
+
+  .section-label .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 20px 16px; }
+    .journey { padding-left: 24px; }
+    .journey::before { left: 7px; }
+    .journey-step::before { left: -20px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Task Journey</h1>
+<p class="subtitle">How a request travels through the Patronous ecosystem</p>
+
+<div class="page">
+
+  <!-- Scenario Selector -->
+  <div class="section" style="--i:0">
+    <div class="section-label"><span class="dot"></span> Select a Scenario</div>
+    <div class="scenarios">
+      <div class="scenario-card active" onclick="showScenario('research')">
+        <h4>Research Task</h4>
+        <p>Human asks for AI framework research, routed to Hermione</p>
+      </div>
+      <div class="scenario-card" onclick="showScenario('security')">
+        <h4>Security Alert</h4>
+        <p>Snape detects vulnerability and alerts Human for approval</p>
+      </div>
+      <div class="scenario-card" onclick="showScenario('briefing')">
+        <h4>Morning Briefing</h4>
+        <p>Daily status compilation from all agents</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Journey Steps -->
+  <div id="journey-container">
+    <!-- Research Scenario (default) -->
+    <div class="journey" id="scenario-research">
+      <div class="journey-step journey-step--start" style="--i:1">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128100;</div>
+            <div class="step-title">Human Request</div>
+          </div>
+          <div class="step-desc">
+            Human sends a message to The Great Hall group: "Research the latest AI agent frameworks for 2025"
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">Telegram</span>
+            <span class="step-tag step-tag--blue">#headmaster-office</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:2">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Dumbledore Receives</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore reads the request, identifies it as a research task, and checks Hermione's availability and domain fit.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--purple">Routing</span>
+            <span class="step-tag">sessions_send</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:3">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Task Delegation</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore dispatches the task to Hermione via agent-to-agent messaging with full context and expected output format.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--purple">A2A</span>
+            <span class="step-tag step-tag--blue">Hermione</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:4">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128218;</div>
+            <div class="step-title">Hermione Researches</div>
+          </div>
+          <div class="step-desc">
+            Hermione searches academic sources, documentation, and tech blogs. She synthesizes findings into a structured report.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--green">Research</span>
+            <span class="step-tag">Multi-source</span>
+            <span class="step-tag">GLM-5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:5">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128218;</div>
+            <div class="step-title">Knowledge Update</div>
+          </div>
+          <div class="step-desc">
+            Hermione saves the research findings to knowledge/research/ai/ and appends a summary to the daily log.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--green">Knowledge</span>
+            <span class="step-tag">Append-only</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:6">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128218;</div>
+            <div class="step-title">Report to Library</div>
+          </div>
+          <div class="step-desc">
+            Hermione posts a summary to #library topic with key findings and recommendations.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">Telegram</span>
+            <span class="step-tag step-tag--blue">#library</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:7">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128218;</div>
+            <div class="step-title">Notify Dumbledore</div>
+          </div>
+          <div class="step-desc">
+            Hermione sends completion notification back to Dumbledore with task status and location of deliverables.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--purple">A2A</span>
+            <span class="step-tag step-tag--green">Complete</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:8">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Compile for Human</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore compiles a unified summary and sends it to the Human via direct message with links to full research.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--purple">Coordination</span>
+            <span class="step-tag">DM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step journey-step--end" style="--i:9">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128100;</div>
+            <div class="step-title">Human Review</div>
+          </div>
+          <div class="step-desc">
+            Human reviews the compiled briefing. If approved, task is marked complete. If changes needed, cycle repeats.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--green">Done</span>
+            <span class="step-tag">Human-in-loop</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Scenario (hidden by default) -->
+    <div class="journey" id="scenario-security" style="display:none">
+      <div class="journey-step journey-step--start" style="--i:1">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129516;</div>
+            <div class="step-title">Snape Detects</div>
+          </div>
+          <div class="step-desc">
+            During routine dependency scan, Snape identifies a critical vulnerability in package xyz-logger v2.1.0
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--orange">Security</span>
+            <span class="step-tag">Automated</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:2">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129516;</div>
+            <div class="step-title">Classify Severity</div>
+          </div>
+          <div class="step-desc">
+            Snape classifies the vulnerability as HIGH severity. Checks affected systems and blast radius.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--orange">Assessment</span>
+            <span class="step-tag step-tag--red">HIGH</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:3">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129516;</div>
+            <div class="step-title">Create Fizzy Card</div>
+          </div>
+          <div class="step-desc">
+            Snape creates a Fizzy card tagged 'needs-human' with vulnerability details, affected systems, and recommended patch.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">Fizzy</span>
+            <span class="step-tag step-tag--red">needs-human</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:4">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Dumbledore Alerts</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore receives the alert, verifies severity, and immediately notifies Human via Telegram with urgent flag.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--purple">Coordination</span>
+            <span class="step-tag step-tag--red">URGENT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:5">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128100;</div>
+            <div class="step-title">Human Decides</div>
+          </div>
+          <div class="step-desc">
+            Human reviews the alert. Replies "patch" to approve immediate remediation, or "schedule" to queue for quiet hours.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">Human</span>
+            <span class="step-tag step-tag--blue">Decision</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:6">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129516;</div>
+            <div class="step-title">Snape Patches</div>
+          </div>
+          <div class="step-desc">
+            Snape applies the security patch, updates dependencies, and runs verification tests to confirm fix.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--green">Remediation</span>
+            <span class="step-tag">CI/CD</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step journey-step--end" style="--i:7">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Close the Loop</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore compiles incident report, updates MEMORY.md, and confirms resolution to Human.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--green">Resolved</span>
+            <span class="step-tag">Documented</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Briefing Scenario (hidden by default) -->
+    <div class="journey" id="scenario-briefing" style="display:none">
+      <div class="journey-step journey-step--start" style="--i:1">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#9200;</div>
+            <div class="step-title">07:00 Trigger</div>
+          </div>
+          <div class="step-desc">
+            launchd heartbeat triggers the morning briefing script. Dumbledore wakes up to coordinate.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">Cron</span>
+            <span class="step-tag step-tag--orange">Scheduled</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:2">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Dispatch Requests</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore sends status request to all active agents: "Report your domain status for the past 24h."
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--purple">Broadcast</span>
+            <span class="step-tag">A2A</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:3">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128218;</div>
+            <div class="step-title">Hermione Reports</div>
+          </div>
+          <div class="step-desc">
+            Hermione posts research status to #library: completed tasks, in-progress work, fuel level at 85%.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">#library</span>
+            <span class="step-tag step-tag--green">Research</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:4">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129516;</div>
+            <div class="step-title">Snape Reports</div>
+          </div>
+          <div class="step-desc">
+            Snape posts security status to #dungeons: no critical alerts, 3 low-severity items, all systems operational.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">#dungeons</span>
+            <span class="step-tag step-tag--orange">Security</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:5">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Compile Briefing</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore reads all reports, compiles unified briefing, checks for items needing human approval.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--purple">Synthesis</span>
+            <span class="step-tag">MEMORY.md</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step" style="--i:6">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#129497;</div>
+            <div class="step-title">Deliver to Human</div>
+          </div>
+          <div class="step-desc">
+            Dumbledore sends formatted briefing via Telegram DM with emoji signatures and action items.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag">Telegram</span>
+            <span class="step-tag step-tag--blue">DM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey-step journey-step--end" style="--i:7">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-avatar">&#128100;</div>
+            <div class="step-title">Human Reviews</div>
+          </div>
+          <div class="step-desc">
+            Human reviews the morning briefing and approves or modifies tasks for the day. Cycle repeats tomorrow.
+          </div>
+          <div class="step-meta">
+            <span class="step-tag step-tag--green">Complete</span>
+            <span class="step-tag">Daily</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showScenario(name) {
+  // Hide all scenarios
+  document.querySelectorAll('[id^="scenario-"]').forEach(el => el.style.display = 'none');
+  // Show selected
+  document.getElementById('scenario-' + name).style.display = 'block';
+  // Update active card
+  document.querySelectorAll('.scenario-card').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+
+</body>
+</html>

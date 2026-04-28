@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patronous — Communication Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    look: 'classic',
+    themeVariables: {
+      primaryColor: isDark ? '#1e293b' : '#e0e7ff',
+      primaryBorderColor: isDark ? '#d4a73a' : '#1e3a5f',
+      primaryTextColor: isDark ? '#f1f5f9' : '#0f172a',
+      secondaryColor: isDark ? '#0f172a' : '#f8fafc',
+      secondaryBorderColor: isDark ? '#94a3b8' : '#64748b',
+      secondaryTextColor: isDark ? '#e2e8f0' : '#1e293b',
+      tertiaryColor: isDark ? '#2a1b0a' : '#fef3c7',
+      tertiaryBorderColor: isDark ? '#d4a73a' : '#b45309',
+      tertiaryTextColor: isDark ? '#fef3c7' : '#2a1b0a',
+      lineColor: isDark ? '#475569' : '#94a3b8',
+      fontSize: '14px',
+      fontFamily: 'JetBrains Mono, monospace',
+    }
+  });
+</script>
+<style>
+  :root {
+    --font-body: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0a0f1c;
+    --surface: #0f172a;
+    --surface2: #1e293b;
+    --surface-elevated: #162032;
+    --border: rgba(148, 163, 184, 0.08);
+    --border-bright: rgba(148, 163, 184, 0.18);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #d4a73a;
+    --accent-dim: rgba(212, 167, 58, 0.12);
+    --green: #34d399;
+    --green-dim: rgba(52, 211, 153, 0.12);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96, 165, 250, 0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167, 139, 250, 0.12);
+    --orange: #fb923c;
+    --orange-dim: rgba(251, 146, 60, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.12);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f8f6f1;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --surface-elevated: #faf8f5;
+      --border: rgba(15, 23, 42, 0.08);
+      --border-bright: rgba(15, 23, 42, 0.15);
+      --text: #0f172a;
+      --text-dim: #64748b;
+      --accent: #1e3a5f;
+      --accent-dim: rgba(30, 58, 95, 0.08);
+      --green: #059669;
+      --green-dim: rgba(5, 150, 105, 0.08);
+      --blue: #2563eb;
+      --blue-dim: rgba(37, 99, 235, 0.08);
+      --purple: #7c3aed;
+      --purple-dim: rgba(124, 58, 237, 0.08);
+      --orange: #d97706;
+      --orange-dim: rgba(217, 119, 6, 0.08);
+      --red: #dc2626;
+      --red-dim: rgba(220, 38, 38, 0.08);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--accent-dim) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, var(--blue-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px 24px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section, .channel-card, .legend-item {
+    animation: fadeUp 0.45s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 40px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+  }
+
+  .section-label .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+  }
+
+  /* Mermaid */
+  .mermaid-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 24px;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 500px;
+  }
+
+  .mermaid-wrap .mermaid {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .mermaid .nodeLabel { color: var(--text) !important; }
+  .mermaid .edgeLabel { color: var(--text-dim) !important; background-color: var(--bg) !important; }
+  .mermaid .edgeLabel rect { fill: var(--bg) !important; }
+
+  /* Channel Cards */
+  .channel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .channel-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+
+  .channel-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .channel-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+
+  .channel-card--green::before { background: var(--green); }
+  .channel-card--blue::before { background: var(--blue); }
+  .channel-card--purple::before { background: var(--purple); }
+  .channel-card--orange::before { background: var(--orange); }
+  .channel-card--red::before { background: var(--red); }
+
+  .channel-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .channel-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .channel-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .channel-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .channel-tag--green { background: var(--green-dim); color: var(--green); }
+  .channel-tag--blue { background: var(--blue-dim); color: var(--blue); }
+  .channel-tag--purple { background: var(--purple-dim); color: var(--purple); }
+  .channel-tag--orange { background: var(--orange-dim); color: var(--orange); }
+  .channel-tag--red { background: var(--red-dim); color: var(--red); }
+
+  /* Priority Flow */
+  .priority-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .priority-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .priority-item:last-child {
+    border-bottom: none;
+  }
+
+  .priority-rank {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    width: 40px;
+    flex-shrink: 0;
+  }
+
+  .priority-content {
+    flex: 1;
+  }
+
+  .priority-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .priority-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .priority-arrow {
+    color: var(--border-bright);
+    font-size: 18px;
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 20px 16px; }
+    .mermaid-wrap { min-height: 400px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Communication Map</h1>
+<p class="subtitle">How agents connect, delegate, and stay isolated</p>
+
+<div class="page">
+
+  <!-- Network Diagram -->
+  <div class="section" style="--i:0">
+    <div class="section-label"><span class="dot"></span> Communication Network</div>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+graph TD
+    subgraph Human["Human Owner"]
+        H(("&#128100; Human"))
+    end
+
+    subgraph Telegram["Telegram — The Great Hall"]
+        T["&#128172; Telegram Group"]
+        T1["#headmaster-office"]
+        T2["#library"]
+        T3["#dungeons"]
+    end
+
+    subgraph Agents["Agent Network"]
+        D["&#129497; Dumbledore<br/>Coordinator"]
+        He["&#128218; Hermione<br/>Research"]
+        S["&#129516; Snape<br/>DevSecOps"]
+    end
+
+    subgraph Infra["Infrastructure"]
+        F["&#128203; Fizzy Task Board"]
+        K["&#128193; Knowledge Base"]
+        M["&#128220; MEMORY.md"]
+    end
+
+    H -->|"commands"| T
+    T -->|"routes"| D
+    D -->|"delegates"| He
+    D -->|"delegates"| S
+    He -->|"reports"| D
+    S -->|"reports"| D
+    He -.->|"no direct"| S
+    S -.->|"communication"| He
+
+    D -->|"reads/writes"| K
+    D -->|"curates"| M
+    He -->|"writes"| K
+    S -->|"writes"| K
+
+    D -->|"creates"| F
+    He -->|"updates"| F
+    S -->|"updates"| F
+
+    He -->|"reports"| T2
+    S -->|"reports"| T3
+
+    classDef human fill:#d4a73a22,stroke:#d4a73a,stroke-width:2px
+    classDef agent fill:#60a5fa22,stroke:#60a5fa,stroke-width:2px
+    classDef infra fill:#a78bfa22,stroke:#a78bfa,stroke-width:2px
+    classDef channel fill:#34d39922,stroke:#34d399,stroke-width:2px
+
+    class H human
+    class D,He,S agent
+    class F,K,M infra
+    class T,T1,T2,T3 channel
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel Types -->
+  <div class="section" style="--i:1">
+    <div class="section-label"><span class="dot"></span> Communication Channels</div>
+    <div class="channel-grid">
+      <div class="channel-card channel-card--green" style="--i:0">
+        <div class="channel-name">Direct Messaging</div>
+        <div class="channel-desc">Agent-to-agent real-time communication via sessions_send. Primary for task delegation.</div>
+        <div class="channel-meta">
+          <span class="channel-tag channel-tag--green">Real-time</span>
+          <span class="channel-tag">A2A</span>
+        </div>
+      </div>
+      <div class="channel-card channel-card--blue" style="--i:1">
+        <div class="channel-name">Task Board (Fizzy)</div>
+        <div class="channel-desc">Async task queue with cards. Tags: bot-actionable or needs-human approval.</div>
+        <div class="channel-meta">
+          <span class="channel-tag channel-tag--blue">Async</span>
+          <span class="channel-tag">Queue</span>
+        </div>
+      </div>
+      <div class="channel-card channel-card--purple" style="--i:2">
+        <div class="channel-name">Group Chat (Telegram)</div>
+        <div class="channel-desc">Topic-based discussions. Domain-specific channels with emoji signatures.</div>
+        <div class="channel-meta">
+          <span class="channel-tag channel-tag--purple">Topics</span>
+          <span class="channel-tag">Human-facing</span>
+        </div>
+      </div>
+      <div class="channel-card channel-card--orange" style="--i:3">
+        <div class="channel-name">File-Based Sync</div>
+        <div class="channel-desc">Knowledge and memory stored as Markdown. Append-only logs, curated MEMORY.md.</div>
+        <div class="channel-meta">
+          <span class="channel-tag channel-tag--orange">Persistent</span>
+          <span class="channel-tag">Versioned</span>
+        </div>
+      </div>
+      <div class="channel-card channel-card--red" style="--i:4">
+        <div class="channel-name">Isolated Channel</div>
+        <div class="channel-desc">Mental health agents only. Zero cross-agent visibility. Air-gapped by architecture.</div>
+        <div class="channel-meta">
+          <span class="channel-tag channel-tag--red">Isolated</span>
+          <span class="channel-tag">Privacy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Priority Fallback -->
+  <div class="section" style="--i:2">
+    <div class="section-label"><span class="dot"></span> Communication Priority</div>
+    <div class="priority-list">
+      <div class="priority-item">
+        <div class="priority-rank">1</div>
+        <div class="priority-content">
+          <div class="priority-title">sessions_send (Agent-to-Agent)</div>
+          <div class="priority-desc">Direct real-time messaging between agents. Fastest, most reliable.</div>
+        </div>
+        <div class="priority-arrow">&rarr;</div>
+      </div>
+      <div class="priority-item">
+        <div class="priority-rank">2</div>
+        <div class="priority-content">
+          <div class="priority-title">nodes.run (Remote Execution)</div>
+          <div class="priority-desc">Fallback when sessions_send is unavailable. Executes tasks remotely.</div>
+        </div>
+        <div class="priority-arrow">&rarr;</div>
+      </div>
+      <div class="priority-item">
+        <div class="priority-rank">3</div>
+        <div class="priority-content">
+          <div class="priority-title">File-Based Sync</div>
+          <div class="priority-desc">Last resort fallback. Agents read/write shared files to coordinate.</div>
+        </div>
+        <div class="priority-arrow">&rarr;</div>
+      </div>
+      <div class="priority-item">
+        <div class="priority-rank">4</div>
+        <div class="priority-content">
+          <div class="priority-title">Telegram API (message tool)</div>
+          <div class="priority-desc">For human-facing communication only. Alerts, approvals, briefings.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
